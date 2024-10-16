@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Orientation Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        body {
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #222;
+            color: #fff;
+        }
+        #container {
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #gameArea {
+            position: relative;
+        }
+        #score {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+        #button {
+            padding: 15px 30px; 
+            font-size: 1em;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        canvas {
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Orientation Game</h1>
+        <div id="gameArea">
+            <canvas id="gameCanvas" width="300" height="300"></canvas>
+        </div>
+        <div id="score">Score: <span id="scoreValue">0</span></div>
+        <button id="button">Start Game</button>
+    </div>
+
+    <script>
+        const button = document.getElementById("button");
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("scoreValue");
+        let score = 0;
+
+        // Game variables
+        const circleRadius = canvas.width / 2 - 10;
+        const redDotRadius = 15;
+        const blueDotRadius = 15;
+        let blueDotPosition = { x: 0, y: 0 };
+
+        button.addEventListener("click", () => {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                // iOS 13+ requires permission
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            startGame();
+                            button.style.display = 'none';
+                        } else {
+                            alert("Permission denied. Please allow access to motion sensors.");
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Non-iOS devices
+                startGame();
+                button.style.display = 'none';
+            }
+        });
+
+        function startGame() {
+            window.addEventListener('deviceorientation', handleOrientation);
+            placeBlueDot();
+            drawGame(0, 0);
+        }
+
+        function handleOrientation(event) {
+            const beta = event.beta || 0;   // X-axis rotation
+            const gamma = event.gamma || 0; // Y-axis rotation
+
+            // Map beta and gamma to x and y coordinates
+            const x = (gamma / 90) * circleRadius;
+            const y = -(beta / 90) * circleRadius;
+
+            drawGame(x, y);
+            checkCollision(x, y);
+        }
+
+        function placeBlueDot() {
+            // Generate random position within the circle
+            let angle = Math.random() * 2 * Math.PI;
+            let radius = Math.random() * (circleRadius - blueDotRadius);
+
+            blueDotPosition.x = radius * Math.cos(angle);
+            blueDotPosition.y = radius * Math.sin(angle);
+        }
+
+        function drawGame(redX, redY) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw main circle
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, circleRadius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw blue dot
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2 + blueDotPosition.x, canvas.height / 2 + blueDotPosition.y, blueDotRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = '#0000FF';
+            ctx.fill();
+
+            // Draw red dot (controlled by phone orientation)
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2 + redX, canvas.height / 2 + redY, redDotRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = '#FF0000';
+            ctx.fill();
+        }
+
+        function checkCollision(redX, redY) {
+            const dx = redX - blueDotPosition.x;
+            const dy = redY - blueDotPosition.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Check if the red dot overlaps the blue dot by at least 50%
+            if (distance < redDotRadius + blueDotRadius - Math.min(redDotRadius, blueDotRadius) / 2) {
+                score++;
+                scoreElement.textContent = score;
+                placeBlueDot();
+            }
+        }
+    </script>
+</body>
+</html>
