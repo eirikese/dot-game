@@ -26,25 +26,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            font-size: 2em; /* Double text size */
         }
         #menu label {
-            margin: 10px 0 5px;
+            margin: 20px 0 10px; /* Adjusted for larger text */
         }
         #menu input {
-            padding: 5px;
+            padding: 10px;
             font-size: 1em;
         }
         #gameArea {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         #score, #timer {
-            font-size: 1.5em;
-            margin-top: 10px;
+            font-size: 3em; /* Double text size */
+            margin-top: 20px;
         }
         #button {
-            padding: 15px 30px; 
+            padding: 20px 40px; 
             font-size: 1em;
-            margin-top: 20px;
+            margin-top: 40px;
             cursor: pointer;
         }
         canvas {
@@ -53,26 +57,31 @@
             border-radius: 50%;
         }
         #gameOver {
-            position: absolute;
-            top: 0;
-            left: 0;
+            position: relative;
             width: 100%;
-            height: 100%;
             background-color: rgba(34, 34, 34, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             color: #fff;
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 2em; /* Double text size */
         }
         #gameOver h2 {
             margin-bottom: 20px;
+        }
+        #gameOver button {
+            padding: 20px 40px;
+            font-size: 1em;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>Orientation Game</h1>
+        <h1 style="font-size: 4em;">Orientation Game</h1>
         <div id="menu">
             <label for="targetSize">Target Size (10 - 50):</label>
             <input type="number" id="targetSize" value="15" min="10" max="50">
@@ -141,7 +150,7 @@
                         if (permissionState === 'granted') {
                             startGame();
                             document.getElementById("menu").style.display = 'none';
-                            document.getElementById("gameArea").style.display = 'block';
+                            document.getElementById("gameArea").style.display = 'flex';
                         } else {
                             alert("Permission denied. Please allow access to motion sensors.");
                         }
@@ -151,7 +160,7 @@
                 // Non-iOS devices
                 startGame();
                 document.getElementById("menu").style.display = 'none';
-                document.getElementById("gameArea").style.display = 'block';
+                document.getElementById("gameArea").style.display = 'flex';
             }
         });
 
@@ -287,7 +296,7 @@
             // Draw the trace and blue dots
             drawTrace();
 
-            document.getElementById('gameArea').appendChild(gameOverDiv);
+            document.getElementById('container').appendChild(gameOverDiv);
         }
 
         function drawTrace() {
